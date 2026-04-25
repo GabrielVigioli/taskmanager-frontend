@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import '../App.css'
 import axios from 'axios'
+import { api } from '../lib/axios'
 
 type SignUpData = {
   name: string
@@ -15,20 +16,15 @@ export function SignUp () {
 
   const signUpFunc = async (data: SignUpData) => {
     try {
-      const signuprequest = await axios.post(
-        'http://localhost:3000/users',
-        data
-      )
+      const signuprequest = await api.post('/users', data)
       console.log(signuprequest)
       setCreated(true)
-    } catch (error: any) {
-      if (error.response) {
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
         setError(error.response.data.error || 'Unknown error')
-        //error.response.data.error
       } else {
         console.log(error)
       }
-      setCreated(false)
     }
     setTried(true)
   }
@@ -36,10 +32,15 @@ export function SignUp () {
   const handleSignUp = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const form = e.currentTarget
+    const nameInput = form.elements.namedItem('name') as HTMLInputElement
+    const emailInput = form.elements.namedItem('email') as HTMLInputElement
+    const passwordInput = form.elements.namedItem(
+      'password'
+    ) as HTMLInputElement
     const data = {
-      name: form.name.value,
-      email: form.email.value,
-      password: form.password.value
+      name: nameInput.value,
+      email: emailInput.value,
+      password: passwordInput.value
     }
     signUpFunc(data)
   }

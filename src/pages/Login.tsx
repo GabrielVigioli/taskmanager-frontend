@@ -1,6 +1,6 @@
-import axios from 'axios'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { api } from '../lib/axios'
 
 export function Login () {
   const navigate = useNavigate()
@@ -12,7 +12,7 @@ export function Login () {
   const [error, setError] = useState<string>('')
   const loginFunc = async (data: loginFuncType) => {
     try {
-      const login = await axios.post('http://localhost:3000/login', data)
+      const login = await api.post('/login', data)
       const token = login.data
       localStorage.setItem('token', token)
       navigate('/dashboard')

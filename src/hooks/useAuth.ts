@@ -9,6 +9,7 @@ export function useAuth () {
     email: string
   }
 
+  const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
   const [user, setUser] = useState<User | null>(null)
 
@@ -19,6 +20,8 @@ export function useAuth () {
     } catch {
       localStorage.removeItem('token')
       navigate('/login')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -33,6 +36,7 @@ export function useAuth () {
 
   return {
     handleLogout,
-    user
+    user,
+    loading
   }
 }

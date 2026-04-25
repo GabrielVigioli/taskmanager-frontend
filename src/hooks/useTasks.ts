@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { api } from '../lib/axios'
-
+import { useEffect } from 'react'
 export function useTasks (userId?: string) {
   const token = localStorage.getItem('token')
 
@@ -21,8 +21,9 @@ export function useTasks (userId?: string) {
     due_date: string
   }
 
-  const [tasks, setTasks] = useState<Task[] | null>(null)
+  const [loading, setLoading] = useState(false)
 
+  const [tasks, setTasks] = useState<Task[]>([])
   const updateTask = async (taskId: string, data: Partial<Task>) => {
     const dataFiltered = Object.fromEntries(
       Object.entries(data).filter(([, value]) => {
@@ -43,9 +44,12 @@ export function useTasks (userId?: string) {
 
     if (!userId) return
 
-    const res = await api.get(`/tasks/${userId}`)
-
-    setTasks(res.data)
+    try {
+      const res = await api.get(`/tasks/${userId}`)
+      setTasks(res.data)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const deleteTask = async (taskId: string) => {
@@ -68,11 +72,17 @@ export function useTasks (userId?: string) {
     getTasks()
   }
 
+  useEffect(() => {
+    if (!userId) return
+    getTasks()
+  }, [userId]) //eslint desgracad
+
   return {
     createTask,
     deleteTask,
     updateTask,
     changeStatus,
-    tasks
+    tasks,
+    loading
   }
 }

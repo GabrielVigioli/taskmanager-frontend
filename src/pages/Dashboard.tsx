@@ -18,11 +18,16 @@ type Task = {
 }
 
 export function Dashboard () {
-  const { user, handleLogout } = useAuth()
+  const { user, handleLogout, loading: authLoading } = useAuth()
 
-  const { tasks, createTask, updateTask, deleteTask, changeStatus } = useTasks(
-    user?.id
-  )
+  const {
+    tasks,
+    createTask,
+    updateTask,
+    deleteTask,
+    changeStatus,
+    loading: tasksLoading
+  } = useTasks(user?.id)
 
   const [editingTask, setEditingTask] = useState<Task | null>(null)
 
@@ -74,6 +79,16 @@ export function Dashboard () {
     createTask(data)
     e.currentTarget.reset()
   }
+  if (authLoading) {
+    return (
+      <div className='min-h-screen flex items-center justify-center bg-gray-100'>
+        <div className='flex flex-col items-center gap-4'>
+          <div className='w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin'></div>
+          <p className='text-gray-700 text-sm'>Carregando usuário...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='min-h-screen bg-gray-100 flex'>
@@ -100,7 +115,29 @@ export function Dashboard () {
           </div>
 
           {/* Lista */}
-          {tasks && (
+          {tasksLoading ? (
+            <div className='space-y-4'>
+              {[1, 2, 3].map(i => (
+                <div
+                  key={i}
+                  className='bg-white p-5 rounded-xl shadow animate-pulse'
+                >
+                  <div className='h-4 bg-gray-300 rounded w-1/3 mb-3'></div>
+                  <div className='h-3 bg-gray-200 rounded w-full mb-2'></div>
+                  <div className='h-3 bg-gray-200 rounded w-5/6'></div>
+
+                  <div className='flex justify-between items-center mt-4'>
+                    <div className='h-3 bg-gray-200 rounded w-1/4'></div>
+                    <div className='h-8 bg-gray-300 rounded w-20'></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className='text-center text-gray-500 mt-10'>
+              Nenhuma tarefa ainda 👀
+            </div>
+          ) : (
             <TaskCard
               tasks={tasks}
               editingTask={editingTask}
